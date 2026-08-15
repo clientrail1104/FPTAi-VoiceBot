@@ -1,258 +1,506 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Voice Assistant UI</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MYAirports AI Voice Assistant | Gemini UI</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-color: #0d0f12;
-      --card-bg: #1a1d24;
-      --accent-color: #4c8bf5;
-      --accent-glow: rgba(76, 139, 245, 0.4);
-      --text-color: #f0f3f8;
-      --text-muted: #9aa0a6;
+      --bg-gradient: radial-gradient(circle at 50% 30%, #1e1b4b 0%, #0f172a 60%, #020617 100%);
+      --accent-blue: #38bdf8;
+      --accent-purple: #c084fc;
+      --accent-pink: #f472b6;
+      --card-bg: rgba(255, 255, 255, 0.05);
+      --card-border: rgba(255, 255, 255, 0.1);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: 'Plus Jakarta Sans', sans-serif;
     }
 
     body {
-      background-color: var(--bg-color);
-      color: var(--text-color);
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
-      height: 100vh;
-      justify-content: space-between;
       align-items: center;
-      padding: 24px;
+      justify-content: space-between;
+      padding: 2rem 1rem;
+      overflow-x: hidden;
     }
 
+    /* Header */
     header {
       text-align: center;
-      margin-top: 12px;
+      margin-bottom: 1rem;
+      z-index: 10;
     }
 
     header h1 {
-      font-size: 1.5rem;
-      font-weight: 500;
-      letter-spacing: -0.5px;
+      font-size: 1.8rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple), var(--accent-pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.3rem;
     }
 
-    .conversation-container {
-      width: 100%;
-      max-width: 600px;
-      flex-grow: 1;
-      overflow-y: auto;
-      margin: 24px 0;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      padding: 12px;
-    }
-
-    .message {
-      padding: 14px 18px;
-      border-radius: 18px;
-      max-width: 80%;
-      line-height: 1.5;
-      font-size: 1rem;
-    }
-
-    .user-message {
-      align-self: flex-end;
-      background-color: #2b303b;
-      color: var(--text-color);
-      border-bottom-right-radius: 4px;
-    }
-
-    .bot-message {
-      align-self: flex-start;
-      background-color: var(--card-bg);
-      border: 1px solid #2a2e39;
-      color: var(--text-color);
-      border-bottom-left-radius: 4px;
-    }
-
-    .controls-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 16px;
-      width: 100%;
-      margin-bottom: 16px;
-    }
-
-    .status-indicator {
-      font-size: 0.9rem;
+    header p {
       color: var(--text-muted);
-      height: 20px;
+      font-size: 0.9rem;
     }
 
-    /* Orb / Mic Button Visualizer */
-    .mic-button {
+    /* Center Visualizer Section */
+    .visualizer-container {
       position: relative;
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      border: none;
-      background: linear-gradient(135deg, #4c8bf5, #8ab4f8);
-      cursor: pointer;
+      width: 260px;
+      height: 260px;
       display: flex;
       justify-content: center;
       align-items: center;
-      outline: none;
-      box-shadow: 0 0 20px var(--accent-glow);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      margin: 1rem 0;
     }
 
-    .mic-button:hover {
+    .orb {
+      position: absolute;
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #3b82f6, #a855f7, #ec4899);
+      filter: blur(20px);
+      opacity: 0.6;
+      transition: all 0.3s ease;
+      animation: float 6s ease-in-out infinite;
+    }
+
+    .orb-core {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #60a5fa, #c084fc);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 0 40px rgba(168, 85, 247, 0.4);
+      z-index: 2;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .orb-core:hover {
       transform: scale(1.05);
     }
 
-    .mic-button svg {
-      width: 32px;
-      height: 32px;
-      fill: #ffffff;
-      z-index: 2;
-    }
-
-    /* Pulse animations for voice active state */
-    .mic-button.listening::before,
-    .mic-button.listening::after {
-      content: "";
+    .ring {
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
       border-radius: 50%;
-      background-color: var(--accent-color);
-      opacity: 0.6;
-      z-index: 1;
-      animation: pulse 2s infinite ease-out;
+      border: 2px solid rgba(255, 255, 255, 0.15);
+      animation: pulse 3s ease-out infinite;
     }
 
-    .mic-button.listening::after {
-      animation-delay: 1s;
+    .ring:nth-child(1) { width: 180px; height: 180px; animation-delay: 0s; }
+    .ring:nth-child(2) { width: 220px; height: 220px; animation-delay: 1s; }
+    .ring:nth-child(3) { width: 260px; height: 260px; animation-delay: 2s; }
+
+    /* Active Recording State */
+    .listening .orb {
+      filter: blur(30px);
+      opacity: 0.9;
+      transform: scale(1.3);
+    }
+    .listening .ring {
+      border-color: rgba(56, 189, 248, 0.4);
+      animation-duration: 1.5s;
     }
 
+    /* Dynamic Response Box */
+    .response-card {
+      width: 100%;
+      max-width: 650px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      backdrop-filter: blur(16px);
+      border-radius: 20px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      min-height: 140px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      z-index: 10;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.3rem 0.8rem;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.08);
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--accent-blue);
+      margin-bottom: 0.8rem;
+      width: fit-content;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: var(--accent-blue);
+    }
+
+    .listening .status-dot {
+      background-color: #ef4444;
+      animation: blink 1s infinite;
+    }
+
+    .transcript {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+      font-style: italic;
+    }
+
+    .ai-output {
+      font-size: 1.05rem;
+      line-height: 1.5;
+      color: var(--text-main);
+      font-weight: 400;
+    }
+
+    /* Prompt Chips */
+    .chips-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+      max-width: 650px;
+      margin-bottom: 1.5rem;
+      z-index: 10;
+    }
+
+    .chip {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      padding: 0.5rem 1rem;
+      border-radius: 30px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .chip:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: var(--text-main);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    /* Footer Controls */
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      z-index: 10;
+    }
+
+    .btn-mic {
+      background: linear-gradient(135deg, #38bdf8, #818cf8);
+      border: none;
+      outline: none;
+      color: #fff;
+      padding: 0.9rem 2rem;
+      border-radius: 40px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      box-shadow: 0 10px 25px rgba(56, 189, 248, 0.3);
+      transition: all 0.2s ease;
+    }
+
+    .btn-mic:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 30px rgba(56, 189, 248, 0.4);
+    }
+
+    .btn-mic.listening {
+      background: linear-gradient(135deg, #ef4444, #f43f5e);
+      box-shadow: 0 10px 25px rgba(239, 68, 68, 0.4);
+    }
+
+    /* Keyframe Animations */
     @keyframes pulse {
-      0% {
-        transform: scale(1);
-        opacity: 0.6;
-      }
-      100% {
-        transform: scale(1.8);
-        opacity: 0;
-      }
+      0% { transform: scale(0.9); opacity: 0.8; }
+      50% { transform: scale(1.1); opacity: 0.3; }
+      100% { transform: scale(1.3); opacity: 0; }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-10px) rotate(5deg); }
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
     }
   </style>
 </head>
 <body>
 
+  <!-- Header -->
   <header>
-    <h1>Voice Assistant Interface</h1>
+    <h1>MYAirports Voice Assistant</h1>
+    <p>KLIA Terminal 1 & 2 • Gemini AI Assistance</p>
   </header>
 
-  <main class="conversation-container" id="conversation"></main>
-
-  <div class="controls-container">
-    <div class="status-indicator" id="status">Tap the button to start speaking</div>
-    <button class="mic-button" id="micBtn" aria-label="Toggle voice input">
-      <svg viewBox="0 0 24 24">
-        <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
-        <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+  <!-- Visualizer Core -->
+  <div class="visualizer-container" id="visualizer">
+    <div class="ring"></div>
+    <div class="ring"></div>
+    <div class="ring"></div>
+    <div class="orb"></div>
+    <div class="orb-core" id="orbCore">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/>
+        <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+        <line x1="12" y1="19" x2="12" y2="22"/>
       </svg>
+    </div>
+  </div>
+
+  <!-- Dynamic Response Card -->
+  <div class="response-card">
+    <div class="status-pill">
+      <div class="status-dot"></div>
+      <span id="statusText">Ready</span>
+    </div>
+    <div class="transcript" id="transcriptText">"Click the button below or tap the orb to ask a question..."</div>
+    <div class="ai-output" id="aiOutputText">Hello! I am your MYAirports assistant inspired by Gemini. Ask me anything about KLIA T1 or T2 flights, biometrics, parking, shopping, or amenities.</div>
+  </div>
+
+  <!-- Quick Action Chips -->
+  <div class="chips-container">
+    <div class="chip" onclick="askPreset('How do I track my flight on MYAirports app?')">✈️ Flight Tracking</div>
+    <div class="chip" onclick="askPreset('Tell me about biometric facial recognition EZPaz')">👤 Biometric EZPaz</div>
+    <div class="chip" onclick="askPreset('How do I complete Digital Arrival Card MDAC?')">📄 Digital Arrival Card</div>
+    <div class="chip" onclick="askPreset('How to pay for car parking using the app?')">🅿️ Car Park Payment</div>
+    <div class="chip" onclick="askPreset('What is the Butterfly Effect program for special assistance?')">🦋 Special Assistance</div>
+    <div class="chip" onclick="askPreset('What shopping and dining choices are available?')">🛍️ Shop & Dine</div>
+  </div>
+
+  <!-- Control Button -->
+  <div class="controls">
+    <button class="btn-mic" id="micBtn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/>
+        <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+        <line x1="12" y1="19" x2="12" y2="22"/>
+      </svg>
+      <span id="btnText">Tap to Speak</span>
     </button>
   </div>
 
   <script>
-    const micBtn = document.getElementById('micBtn');
-    const statusText = document.getElementById('status');
-    const conversation = document.getElementById('conversation');
+    // Knowledge Base compiled from official MYAirports Portal & App Specs
+    const knowledgeBase = [
+      {
+        keywords: ["flight", "tracking", "fids", "schedule", "arrival", "departure", "gate", "status"],
+        answer: "The MYAirports app provides real-time Flight Information Display System (FIDS) tracking for both KLIA Terminal 1 and Terminal 2. You can enter your flight number to get real-time arrival or departure updates, check-in counter details, and gate numbers, as well as share flight status with family."
+      },
+      {
+        keywords: ["biometric", "ezpaz", "facial", "face", "recognition", "queue"],
+        answer: "Malaysia Airports features Biometric Facial Recognition technology (EZPaz) on the MYAirports app. It allows eligible passengers to breeze through check-in, bag drop, pre-security screening, and boarding gates without repeatedly showing physical boarding passes."
+      },
+      {
+        keywords: ["arrival card", "mdac", "digital arrival", "immigration", "customs", "entry card"],
+        answer: "You can easily complete and submit your Malaysia Digital Arrival Card (MDAC) right inside the MYAirports mobile app prior to arriving in Malaysia, ensuring a fast and hassle-free entry process through immigration."
+      },
+      {
+        keywords: ["park", "parking", "car park", "payment", "rate", "bay"],
+        answer: "The MYAirports app features seamless car park payment integration for KLIA Terminal 1 and Terminal 2. You can pay your parking charges directly on your phone using touchless digital payment before heading back to your car."
+      },
+      {
+        keywords: ["special assistance", "butterfly effect", "hidden disability", "autism", "wheelchair", "elderly"],
+        answer: "The Butterfly Effect is Malaysia Airports' special assistance program designed for passengers with hidden disabilities like autism or sensory processing needs. You can pre-register on the MYAirports app to request tailored assistance, lanyards, and access to sensory rooms."
+      },
+      {
+        keywords: ["aerotrain", "train", "transfer", "inter-terminal", "shuttle", "klia2 transfer"],
+        answer: "The MYAirports app updates real-time status for terminal transfers. The upgraded Aerotrain connects the Main Terminal Building and Satellite Building at KLIA Terminal 1, while shuttle buses and KLIA Transit connect T1 and T2."
+      },
+      {
+        keywords: ["shop", "shopping", "duty free", "dine", "dining", "food", "restaurant", "store", "promotions"],
+        answer: "The app features an extensive Shop & Dine directory with location maps, exclusive app promotions, and updates on luxury brands, duty-free perfumes, chocolates, and diverse culinary options available across KLIA T1 and T2."
+      },
+      {
+        keywords: ["journey", "plan my journey", "navigation", "wayfinding", "map", "poi"],
+        answer: "The 'Plan My Journey' module offers dynamic interactive wayfinding and step-by-step navigation through KLIA T1, T2, Penang, Kuching, and Kota Kinabalu airports, identifying nearby Points of Interest (POIs), prayer rooms, and toilets."
+      },
+      {
+        keywords: ["prayer", "surau", "masjid", "utility", "facility", "facilities", "luggage", "money changer", "wrap"],
+        answer: "The MYAirports app helps you find essential amenities including prayer rooms (Surau), baggage wrapping services, money changers, tax refunds, lost & found counters, and baby care rooms."
+      },
+      {
+        keywords: ["download", "app store", "play store", "ios", "android"],
+        answer: "The official MYAirports app is available for free on Apple App Store, Google Play Store, and Huawei AppGallery. It supports multi-terminal features for KLIA T1, KLIA T2, PEN, BKI, and KCH."
+      }
+    ];
 
-    // Speech Recognition setup
+    // Speech Recognition & Synthesis Setup
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    let recognition;
+    let recognition = null;
     let isListening = false;
+    let synth = window.speechSynthesis;
+
+    const micBtn = document.getElementById('micBtn');
+    const orbCore = document.getElementById('orbCore');
+    const visualizer = document.getElementById('visualizer');
+    const statusText = document.getElementById('statusText');
+    const transcriptText = document.getElementById('transcriptText');
+    const aiOutputText = document.getElementById('aiOutputText');
+    const btnText = document.getElementById('btnText');
 
     if (SpeechRecognition) {
       recognition = new SpeechRecognition();
       recognition.continuous = false;
-      recognition.interimResults = false;
       recognition.lang = 'en-US';
+      recognition.interimResults = false;
 
       recognition.onstart = () => {
         isListening = true;
+        visualizer.classList.add('listening');
         micBtn.classList.add('listening');
-        statusText.textContent = "Listening...";
-      };
-
-      recognition.onend = () => {
-        isListening = false;
-        micBtn.classList.remove('listening');
-        statusText.textContent = "Tap to speak";
+        statusText.innerText = 'Listening...';
+        btnText.innerText = 'Stop Listening';
+        transcriptText.innerText = '"Listening to your query..."';
       };
 
       recognition.onresult = (event) => {
         const transcript = event.results[0][0].transcript;
-        appendMessage(transcript, 'user');
-        handleResponse(transcript);
+        transcriptText.innerText = `"${transcript}"`;
+        processInput(transcript);
       };
 
       recognition.onerror = (event) => {
-        statusText.textContent = "Error occurred: " + event.error;
-        micBtn.classList.remove('listening');
-        isListening = false;
+        console.error('Speech recognition error:', event.error);
+        stopListening();
+        statusText.innerText = 'Error';
+        aiOutputText.innerText = "Sorry, I couldn't hear that clearly. Please try clicking the microphone again.";
+      };
+
+      recognition.onend = () => {
+        stopListening();
       };
     } else {
-      statusText.textContent = "Web Speech API is not supported in this browser.";
+      statusText.innerText = 'STT Not Supported';
+      transcriptText.innerText = 'Web Speech API is not supported in this browser. Please use Google Chrome or Edge.';
       micBtn.disabled = true;
     }
 
-    micBtn.addEventListener('click', () => {
+    function toggleListening() {
       if (!recognition) return;
+      if (synth.speaking) {
+        synth.cancel();
+      }
 
       if (isListening) {
         recognition.stop();
+        stopListening();
       } else {
         recognition.start();
       }
-    });
-
-    function appendMessage(text, sender) {
-      const msgDiv = document.createElement('div');
-      msgDiv.classList.add('message', sender === 'user' ? 'user-message' : 'bot-message');
-      msgDiv.textContent = text;
-      conversation.appendChild(msgDiv);
-      conversation.scrollTop = conversation.scrollHeight;
     }
 
-    function handleResponse(userInput) {
-      statusText.textContent = "Thinking...";
-      
-      // Simulate backend AI response delay
-      setTimeout(() => {
-        const replyText = `Received request: "${userInput}". How else can I help you?`;
-        appendMessage(replyText, 'bot');
-        speakText(replyText);
-      }, 1000);
+    function stopListening() {
+      isListening = false;
+      visualizer.classList.remove('listening');
+      micBtn.classList.remove('listening');
+      statusText.innerText = 'Ready';
+      btnText.innerText = 'Tap to Speak';
     }
 
-    function speakText(text) {
-      if ('speechSynthesis' in window) {
-        statusText.textContent = "Speaking...";
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.onend = () => {
-          statusText.textContent = "Tap to speak";
-        };
-        window.speechSynthesis.speak(utterance);
+    function processInput(text) {
+      statusText.innerText = 'Thinking...';
+      const cleanText = text.toLowerCase();
+      let bestMatch = null;
+      let highestScore = 0;
+
+      knowledgeBase.forEach(item => {
+        let score = 0;
+        item.keywords.forEach(kw => {
+          if (cleanText.includes(kw)) score++;
+        });
+        if (score > highestScore) {
+          highestScore = score;
+          bestMatch = item;
+        }
+      });
+
+      let response = "";
+      if (bestMatch && highestScore > 0) {
+        response = bestMatch.answer;
+      } else {
+        response = `I can help with that! In the official MYAirports app, you can easily access real-time flight tracking, biometric facial recognition (EZPaz), car park payments, digital arrival cards, and terminal navigation for KLIA Terminal 1 and 2. How else may I assist your journey?`;
       }
+
+      aiOutputText.innerText = response;
+      speakResponse(response);
+    }
+
+    function speakResponse(text) {
+      if (!synth) return;
+      if (synth.speaking) synth.cancel();
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 1.0;
+      utterance.pitch = 1.0;
+      
+      // Try to select a natural English voice
+      const voices = synth.getVoices();
+      const preferredVoice = voices.find(v => v.lang.includes('en') && (v.name.includes('Google') || v.name.includes('Natural') || v.name.includes('Samantha')));
+      if (preferredVoice) utterance.voice = preferredVoice;
+
+      utterance.onstart = () => {
+        statusText.innerText = 'Assistant Speaking...';
+        visualizer.classList.add('listening');
+      };
+
+      utterance.onend = () => {
+        statusText.innerText = 'Ready';
+        visualizer.classList.remove('listening');
+      };
+
+      synth.speak(utterance);
+    }
+
+    function askPreset(promptText) {
+      if (synth.speaking) synth.cancel();
+      transcriptText.innerText = `"${promptText}"`;
+      processInput(promptText);
+    }
+
+    micBtn.addEventListener('click', toggleListening);
+    orbCore.addEventListener('click', toggleListening);
+
+    // Pre-load synth voices
+    if (speechSynthesis.onvoiceschanged !== undefined) {
+      speechSynthesis.onvoiceschanged = () => synth.getVoices();
     }
   </script>
 </body>
