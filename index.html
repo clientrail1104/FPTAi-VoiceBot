@@ -3,445 +3,303 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MYairports Gemini Voice Assistant - KLIA Terminal 1 & 2</title>
+    <title>KLIA Flight Radar & Real-Time Tracker | MYairports</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome for Icons -->
+    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background: #090a0f;
+            background-color: #0b0f19;
             color: #f3f4f6;
-            overflow-x: hidden;
         }
-
-        /* Dynamic Gemini Glowing Aura Effect */
-        .gemini-bg {
-            background: radial-gradient(circle at 50% 30%, rgba(79, 70, 229, 0.25) 0%, rgba(147, 51, 234, 0.15) 35%, rgba(236, 72, 153, 0.05) 60%, transparent 100%);
-        }
-
-        .gemini-orb-glow {
-            filter: drop-shadow(0 0 45px rgba(99, 102, 241, 0.6)) 
-                    drop-shadow(0 0 90px rgba(168, 85, 247, 0.4));
-        }
-
-        .glass-card {
-            background: rgba(18, 20, 29, 0.65);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+        .glass-panel {
+            background: rgba(17, 24, 39, 0.7);
+            backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.08);
         }
-
-        .glass-pill {
-            background: rgba(255, 255, 255, 0.06);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+        .glow-effect {
+            box-shadow: 0 0 25px -5px rgba(79, 70, 229, 0.3);
         }
-
         /* Custom Scrollbar */
         ::-webkit-scrollbar {
             width: 6px;
+            height: 6px;
         }
         ::-webkit-scrollbar-track {
-            background: rgba(0,0,0,0.2);
+            background: rgba(15, 23, 42, 0.6);
         }
         ::-webkit-scrollbar-thumb {
-            background: rgba(255,255,255,0.15);
+            background: rgba(99, 102, 241, 0.4);
             border-radius: 3px;
-        }
-
-        /* Pulse Animations */
-        @keyframes pulse-ring {
-            0% { transform: scale(0.95); opacity: 0.8; }
-            50% { transform: scale(1.1); opacity: 0.4; }
-            100% { transform: scale(0.95); opacity: 0.8; }
-        }
-        .animate-pulse-slow {
-            animation: pulse-ring 4s infinite ease-in-out;
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between gemini-bg relative selection:bg-indigo-500 selection:text-white">
+<body class="min-h-screen flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
 
-    <!-- Top Navigation -->
-    <header class="w-full p-4 md:px-8 flex justify-between items-center z-20 glass-card border-b border-white/5">
-        <div class="flex items-center space-x-3">
-            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
-                <i class="fa-solid fa-plane-up text-white text-sm"></i>
+    <!-- Header Navigation -->
+    <header class="w-full border-b border-white/10 glass-panel sticky top-0 z-30 px-4 md:px-8 py-4">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                    <i class="fa-solid fa-plane-departure text-white text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg tracking-wide text-white flex items-center gap-2">
+                        KLIA Real-Time Tracker
+                        <span class="text-xs bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded-full">KUL</span>
+                    </h1>
+                    <p class="text-xs text-gray-400">Malaysia Airports (KLIA T1 & T2) Flight Radar</p>
+                </div>
             </div>
-            <div>
-                <h1 class="font-bold text-base tracking-wide bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">MYairports AI Assistant</h1>
-                <p class="text-xs text-indigo-400/80 font-medium">KLIA Terminal 1 & 2 Official Voice Concierge</p>
+
+            <div class="flex items-center gap-3">
+                <span id="live-clock" class="text-xs font-mono bg-gray-800/80 px-3 py-1.5 rounded-lg border border-white/5 text-gray-300 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> --:--:-- MYT
+                </span>
+                <button onclick="refreshData()" class="text-xs bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-1.5 rounded-lg text-gray-300 hover:text-white transition flex items-center gap-1.5">
+                    <i id="refresh-icon" class="fa-solid fa-rotate-right"></i> Refresh
+                </button>
             </div>
-        </div>
-        <div class="flex items-center space-x-3">
-            <span id="status-badge" class="px-3 py-1 rounded-full text-xs font-semibold glass-pill text-emerald-400 border border-emerald-500/30 flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> Voice Ready
-            </span>
         </div>
     </header>
 
-    <!-- Main Dynamic Visual Surface -->
-    <main class="flex-1 flex flex-col items-center justify-center p-4 relative z-10 max-w-5xl mx-auto w-full">
-        
-        <!-- Interactive Gemini Orb Canvas Visualizer -->
-        <div class="relative flex items-center justify-center my-4 my-md-8">
-            <div id="orb-bg-glow" class="absolute w-72 h-72 md:w-96 md:h-96 rounded-full bg-gradient-to-tr from-indigo-600/30 via-purple-600/20 to-pink-500/20 blur-3xl animate-pulse-slow"></div>
-            <canvas id="gemini-canvas" width="320" height="320" class="gemini-orb-glow relative z-10 cursor-pointer" title="Click to start talking"></canvas>
-        </div>
+    <!-- Main Content -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 md:px-8 py-6 flex flex-col gap-6">
 
-        <!-- Dynamic Status Subtitle -->
-        <div class="text-center mb-6">
-            <h2 id="assistant-state" class="text-xl md:text-2xl font-medium tracking-tight bg-gradient-to-r from-indigo-200 via-white to-purple-200 bg-clip-text text-transparent">
-                Tap the microphone or Gemini orb to ask about KLIA
-            </h2>
-            <p id="sub-state" class="text-xs md:text-sm text-gray-400 mt-1">Real-time flight tracking, AeroTrain updates, baggage & terminal amenities</p>
-        </div>
+        <!-- Search & Quick Filters Bar -->
+        <div class="glass-panel rounded-2xl p-4 md:p-6 shadow-xl flex flex-col md:flex-row gap-4 justify-between items-center">
+            
+            <!-- Search Input -->
+            <div class="relative w-full md:w-96">
+                <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                <input type="text" id="search-input" onkeyup="filterFlights()" 
+                       placeholder="Search flight no (e.g. MH123, AK6144), city..." 
+                       class="w-full bg-slate-900/80 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-gray-500 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition">
+            </div>
 
-        <!-- Quick Assist Chips -->
-        <div class="flex flex-wrap justify-center gap-2 mb-6 max-w-2xl px-2">
-            <button onclick="askPreset('Where do I check in for flight status and tracking?')" class="glass-pill px-3 py-1.5 rounded-full text-xs text-gray-300 hover:text-white hover:border-indigo-500/50 transition duration-300">✈️ Flight Tracking</button>
-            <button onclick="askPreset('What features are in the MYairports mobile app?')" class="glass-pill px-3 py-1.5 rounded-full text-xs text-gray-300 hover:text-white hover:border-indigo-500/50 transition duration-300">📲 App Features</button>
-            <button onclick="askPreset('How can I find car parking and pay at KLIA Terminal 1?')" class="glass-pill px-3 py-1.5 rounded-full text-xs text-gray-300 hover:text-white hover:border-indigo-500/50 transition duration-300">🅿️ Parking Payment</button>
-            <button onclick="askPreset('What special assistance and Butterfly Effect program exist?')" class="glass-pill px-3 py-1.5 rounded-full text-xs text-gray-300 hover:text-white hover:border-indigo-500/50 transition duration-300">🦋 Special Assistance</button>
-        </div>
-
-        <!-- Chat Conversation Stream -->
-        <div id="chat-stream" class="w-full max-w-2xl h-48 md:h-56 overflow-y-auto glass-card rounded-2xl p-4 space-y-3 mb-6 border border-white/10 shadow-2xl">
-            <div class="flex gap-3 items-start">
-                <div class="w-7 h-7 rounded-lg bg-indigo-600/40 border border-indigo-400/30 flex items-center justify-center shrink-0 text-xs">
-                    <i class="fa-solid fa-sparkles text-indigo-300"></i>
+            <!-- Filter Controls -->
+            <div class="flex flex-wrap items-center gap-2 w-full md:w-auto justify-start md:justify-end">
+                <!-- Type Filter -->
+                <div class="bg-slate-900/80 p-1 rounded-xl border border-white/10 flex text-xs">
+                    <button id="btn-all" onclick="setTypeFilter('ALL')" class="px-3 py-1.5 rounded-lg font-medium text-white bg-indigo-600 transition">All</button>
+                    <button id="btn-arr" onclick="setTypeFilter('ARR')" class="px-3 py-1.5 rounded-lg font-medium text-gray-400 hover:text-white transition">Arrivals</button>
+                    <button id="btn-dep" onclick="setTypeFilter('DEP')" class="px-3 py-1.5 rounded-lg font-medium text-gray-400 hover:text-white transition">Departures</button>
                 </div>
-                <div class="text-sm text-gray-300">
-                    Hello! I am your MYairports Voice Concierge for KLIA T1 & T2. Ask me anything about flights, parking, prayer rooms, luggage tracking, or app features!
+
+                <!-- Terminal Filter -->
+                <select id="terminal-filter" onchange="filterFlights()" class="bg-slate-900/80 border border-white/10 rounded-xl px-3 py-2 text-xs text-gray-300 outline-none focus:border-indigo-500">
+                    <option value="ALL">All Terminals</option>
+                    <option value="T1">Terminal 1 (KLIA1)</option>
+                    <option value="T2">Terminal 2 (KLIA2)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Live Flights Board Table -->
+        <div class="glass-panel rounded-2xl shadow-xl overflow-hidden border border-white/10">
+            <div class="px-6 py-4 border-b border-white/10 flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+                    <h2 class="font-semibold text-sm tracking-wide text-white uppercase">Live Information Display System</h2>
+                </div>
+                <span id="flight-count" class="text-xs text-gray-400">Showing 5 flights</span>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-gray-300">
+                    <thead class="bg-slate-900/60 text-xs text-gray-400 uppercase tracking-wider border-b border-white/5">
+                        <tr>
+                            <th class="py-3.5 px-6">Flight / Airline</th>
+                            <th class="py-3.5 px-6">Type</th>
+                            <th class="py-3.5 px-6">Origin / Destination</th>
+                            <th class="py-3.5 px-6">Terminal</th>
+                            <th class="py-3.5 px-6">Gate / Carousel</th>
+                            <th class="py-3.5 px-6">Scheduled</th>
+                            <th class="py-3.5 px-6">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="flights-tbody" class="divide-y divide-white/5 font-medium">
+                        <!-- Dynamic JavaScript Rows Render Here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- External Tracking Links & Info Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="glass-panel p-5 rounded-xl border border-white/5 flex items-start space-x-4">
+                <div class="w-10 h-10 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center shrink-0">
+                    <i class="fa-solid fa-mobile-screen-button text-lg"></i>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-sm text-white">MYairports Official App</h3>
+                    <p class="text-xs text-gray-400 mt-1">Get instant baggage carousel alerts, gate changes, and terminal directions.</p>
+                </div>
+            </div>
+
+            <div class="glass-panel p-5 rounded-xl border border-white/5 flex items-start space-x-4">
+                <div class="w-10 h-10 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center shrink-0">
+                    <i class="fa-solid fa-[#00d46a] fa-satellite text-lg"></i>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-sm text-white">Live FlightRadar24 Maps</h3>
+                    <p class="text-xs text-gray-400 mt-1">Track actual airplane locations, speeds, and altitudes in real-time air traffic.</p>
+                </div>
+            </div>
+
+            <div class="glass-panel p-5 rounded-xl border border-white/5 flex items-start space-x-4">
+                <div class="w-10 h-10 rounded-lg bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center shrink-0">
+                    <i class="fa-solid fa-train text-lg"></i>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-sm text-white">T1 ↔ T2 Inter-Transfer</h3>
+                    <p class="text-xs text-gray-400 mt-1">Free shuttle bus and KLIA Transit trains available between terminals.</p>
                 </div>
             </div>
         </div>
 
     </main>
 
-    <!-- Bottom Controls -->
-    <footer class="w-full p-4 md:px-8 z-20 flex flex-col items-center">
-        <div class="w-full max-w-2xl flex items-center gap-2 glass-card p-2 rounded-full border border-white/10 shadow-xl">
-            <input type="text" id="text-input" placeholder="Ask about KLIA flights, maps, services..." 
-                   class="flex-1 bg-transparent px-4 py-2 text-sm text-white placeholder-gray-500 outline-none border-none">
-            
-            <button id="mic-btn" onclick="toggleSpeech()" class="w-11 h-11 rounded-full bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 text-white flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition">
-                <i id="mic-icon" class="fa-solid fa-microphone text-base"></i>
-            </button>
-            
-            <button id="send-btn" onclick="handleTextInput()" class="w-11 h-11 rounded-full bg-white/10 text-white hover:bg-white/20 flex items-center justify-center transition">
-                <i class="fa-solid fa-arrow-up text-base"></i>
-            </button>
-        </div>
-        <p class="text-[11px] text-gray-500 mt-2">Powered by Web Speech API & Knowledge from Malaysia Airports Official App (MYairports)</p>
+    <!-- Footer -->
+    <footer class="w-full border-t border-white/5 glass-panel py-4 px-4 text-center text-xs text-gray-500">
+        <p>© 2026 Malaysia Airports Holdings Berhad (KLIA T1 & T2). Designed for Flight Operations & Public Display.</p>
     </footer>
 
-    <!-- Application Script -->
+    <!-- JavaScript logic -->
     <script>
-        // Knowledge Base built directly from KLIA Mobile App domain:
-        // https://www.malaysiaairports.com.my/en/klia1/mobile-app
-        const AIRPORT_KNOWLEDGE = [
-            {
-                keywords: ["app", "download", "myairports", "mobile", "features", "what can"],
-                response: "The MYairports official app by Malaysia Airports Holdings Berhad provides real-time flight tracking, airport navigation, terminal-based chatbot assistance, car parking payment for KLIA Terminal 1, first-bag baggage update notifications, and dining and shopping promotions across KLIA Terminal 1 and 2."
-            },
-            {
-                keywords: ["flight", "track", "tracking", "status", "departure", "arrival", "gate"],
-                response: "You can track real-time arrival and departure flight details, boarding gates, and check-in counters directly in the MYairports app. You can also share flight status updates with family via email or messaging."
-            },
-            {
-                keywords: ["parking", "car park", "pay", "payment"],
-                response: "Seamless car park payment is available via the MYairports app for KLIA Terminal 1. You can check rates, validate, and pay directly from your mobile device before heading to your car."
-            },
-            {
-                keywords: ["butterfly", "special assistance", "disabled", "wheelchair", "hidden disability"],
-                response: "The MYairports app features The Butterfly Effect program, providing dedicated support and navigation for passengers with hidden disabilities or special assistance needs across KLIA."
-            },
-            {
-                keywords: ["digital arrival card", "arrival card", "ezpaz", "customs", "immigration", "visa"],
-                response: "The MYairports app lets you complete and access the Digital Arrival Card for Malaysia hassle-free before arrival, ensuring smooth entry through immigration."
-            },
-            {
-                keywords: ["aerotrain", "train", "transfer", "inter-terminal", "terminal 1 to 2", "klia2"],
-                response: "The app offers real-time AeroTrain module updates and inter-terminal transfer guidance between KLIA Terminal 1 and Terminal 2."
-            },
-            {
-                keywords: ["baggage", "first bag", "luggage", "claim"],
-                response: "The app features First Bag Notifications, alerting you when your luggage is ready for pickup at the baggage reclaim carousel."
-            },
-            {
-                keywords: ["dine", "shop", "store", "food", "restaurant", "duty free", "promotions"],
-                response: "You can explore dining outlets, luxury shopping, duty-free promotions, and last-minute amenities like money changers and luggage wrapping inside the app directory."
-            },
-            {
-                keywords: ["prayer", "surau", "facility", "toilet", "washroom", "amenities"],
-                response: "The MYairports app contains dynamic terminal maps guiding you to the nearest prayer rooms, surau facilities, restrooms, and baby care rooms."
-            }
+        // Sample Real-Time Dataset for KLIA (KUL)
+        const mockFlights = [
+            { code: "MH 124", airline: "Malaysia Airlines", type: "ARR", city: "Perth (PER)", terminal: "T1", gate: "C12", carousel: "Belt 4", time: "12:15 PM", status: "Landed", statusColor: "emerald" },
+            { code: "AK 6144", airline: "AirAsia", type: "ARR", city: "Penang (PEN)", terminal: "T2", gate: "K4", carousel: "Belt 2", time: "12:30 PM", status: "Landed", statusColor: "emerald" },
+            { code: "OD 372", airline: "Batik Air", type: "ARR", city: "Dili (DIL)", terminal: "T1", gate: "G8", carousel: "Belt 7", time: "12:55 PM", status: "En Route", statusColor: "blue" },
+            { code: "MH 2628", airline: "Malaysia Airlines", type: "DEP", city: "Kota Kinabalu (BKI)", terminal: "T1", gate: "B6", carousel: "-", time: "01:20 PM", status: "Boarding", statusColor: "amber" },
+            { code: "AK 723", airline: "AirAsia", type: "DEP", city: "Singapore (SIN)", terminal: "T2", gate: "L10", carousel: "-", time: "01:45 PM", status: "Scheduled", statusColor: "indigo" },
+            { code: "SQ 107", airline: "Singapore Airlines", type: "DEP", city: "Singapore (SIN)", terminal: "T1", gate: "C2", carousel: "-", time: "02:10 PM", status: "Scheduled", statusColor: "indigo" },
+            { code: "D7 220", airline: "AirAsia X", type: "DEP", city: "Sydney (SYD)", terminal: "T2", gate: "P3", carousel: "-", time: "02:35 PM", status: "Delayed (30m)", statusColor: "rose" }
         ];
 
-        // System state
-        let isListening = false;
-        let isSpeaking = false;
-        let recognition = null;
-        let synth = window.speechSynthesis;
-        let animationFrameId = null;
+        let activeTypeFilter = "ALL";
 
-        // Visualizer settings
-        const canvas = document.getElementById('gemini-canvas');
-        const ctx = canvas.getContext('2d');
-        let pulsePhase = 0;
-
-        // Initialize Web Speech API
-        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            recognition = new SpeechRecognition();
-            recognition.continuous = false;
-            recognition.interimResults = false;
-            recognition.lang = 'en-US';
-
-            recognition.onstart = () => {
-                isListening = true;
-                updateState("Listening...", "Speak your question clearly into the microphone");
-                document.getElementById('mic-icon').className = 'fa-solid fa-microphone-slash text-base text-red-400';
-            };
-
-            recognition.onresult = (event) => {
-                const transcript = event.results[0][0].transcript;
-                appendMessage('User', transcript);
-                processQuery(transcript);
-            };
-
-            recognition.onerror = (event) => {
-                console.error("Speech Recognition Error", event.error);
-                stopListening();
-                updateState("Tap to ask about KLIA", "Listening error occurred. Try again or type below.");
-            };
-
-            recognition.onend = () => {
-                stopListening();
-            };
-        } else {
-            updateState("Voice recognition unavailable", "Your browser does not support Web Speech API. Please type your query.");
-            document.getElementById('mic-btn').disabled = true;
+        // Initialize Live Clock
+        function updateClock() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { hour12: false });
+            document.getElementById('live-clock').innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> ${timeString} MYT`;
         }
+        setInterval(updateClock, 1000);
+        updateClock();
 
-        // Toggle microphone state
-        function toggleSpeech() {
-            if (isSpeaking) {
-                synth.cancel();
-                isSpeaking = false;
-            }
-            if (!recognition) return;
+        // Render Table Rows
+        function renderTable(data) {
+            const tbody = document.getElementById('flights-tbody');
+            const countElem = document.getElementById('flight-count');
+            tbody.innerHTML = '';
 
-            if (isListening) {
-                recognition.stop();
-            } else {
-                try {
-                    recognition.start();
-                } catch(e) {
-                    console.error(e);
-                }
-            }
-        }
+            countElem.innerText = `Showing ${data.length} flights`;
 
-        function stopListening() {
-            isListening = false;
-            document.getElementById('mic-icon').className = 'fa-solid fa-microphone text-base';
-        }
-
-        // Process search input with strict context and vulgarity filter
-        function processQuery(userText) {
-            // Clean & filter input (profanity prevention)
-            const cleanText = filterVulgarity(userText);
-            
-            updateState("Thinking...", "Processing airport directory and real-time database");
-
-            let matchedResponse = null;
-            const textLower = cleanText.toLowerCase();
-
-            for (const item of AIRPORT_KNOWLEDGE) {
-                if (item.keywords.some(kw => textLower.includes(kw))) {
-                    matchedResponse = item.response;
-                    break;
-                }
+            if (data.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="py-8 text-center text-gray-500">
+                            <i class="fa-solid fa-plane-slash text-2xl mb-2 block"></i>
+                            No flights match your search query.
+                        </td>
+                    </tr>
+                `;
+                return;
             }
 
-            if (!matchedResponse) {
-                matchedResponse = `Regarding "${cleanText}": At KLIA Terminal 1 and 2, you can manage flight tracking, car park payment, terminal maps, and special assistance using the MYairports app downloadable from Google Play and Apple App Store. How else can I assist your journey?`;
-            }
+            data.forEach(flight => {
+                const badgeColor = {
+                    emerald: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30",
+                    blue: "bg-blue-500/10 text-blue-400 border-blue-500/30",
+                    amber: "bg-amber-500/10 text-amber-400 border-amber-500/30",
+                    indigo: "bg-indigo-500/10 text-indigo-400 border-indigo-500/30",
+                    rose: "bg-rose-500/10 text-rose-400 border-rose-500/30"
+                }[flight.statusColor] || "bg-gray-500/10 text-gray-400 border-gray-500/30";
 
-            setTimeout(() => {
-                appendMessage('Assistant', matchedResponse);
-                speakResponse(matchedResponse);
-            }, 600);
-        }
+                const typeBadge = flight.type === "ARR" 
+                    ? `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"><i class="fa-solid fa-plane-arrival mr-1"></i>ARR</span>`
+                    : `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30"><i class="fa-solid fa-plane-departure mr-1"></i>DEP</span>`;
 
-        // Simple filter for vulgar words
-        function filterVulgarity(text) {
-            const forbidden = ["badword1", "badword2"]; // Standard placeholder filter structure
-            let sanitized = text;
-            forbidden.forEach(word => {
-                const regex = new RegExp(word, "gi");
-                sanitized = sanitized.replace(regex, "*****");
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-white/[0.02] transition border-b border-white/5";
+                tr.innerHTML = `
+                    <td class="py-4 px-6">
+                        <div class="font-bold text-white">${flight.code}</div>
+                        <div class="text-xs text-gray-400">${flight.airline}</div>
+                    </td>
+                    <td class="py-4 px-6">${typeBadge}</td>
+                    <td class="py-4 px-6 text-gray-200 font-semibold">${flight.city}</td>
+                    <td class="py-4 px-6">
+                        <span class="px-2.5 py-1 rounded-md text-xs font-bold bg-slate-800 text-gray-300 border border-white/10">
+                            ${flight.terminal}
+                        </span>
+                    </td>
+                    <td class="py-4 px-6 text-xs text-gray-300">
+                        <div>Gate: <span class="text-white font-bold">${flight.gate}</span></div>
+                        ${flight.type === 'ARR' ? `<div class="text-gray-400 text-[11px]">${flight.carousel}</div>` : ''}
+                    </td>
+                    <td class="py-4 px-6 text-gray-300 font-mono text-xs">${flight.time}</td>
+                    <td class="py-4 px-6">
+                        <span class="px-3 py-1 rounded-full text-xs font-semibold border ${badgeColor}">
+                            ${flight.status}
+                        </span>
+                    </td>
+                `;
+                tbody.appendChild(tr);
             });
-            return sanitized;
         }
 
-        // Voice Response via SpeechSynthesis
-        function speakResponse(text) {
-            if (!synth) return;
-            synth.cancel();
+        // Set Filter Type (ALL / ARR / DEP)
+        function setTypeFilter(type) {
+            activeTypeFilter = type;
+            ['btn-all', 'btn-arr', 'btn-dep'].forEach(id => {
+                const btn = document.getElementById(id);
+                btn.className = "px-3 py-1.5 rounded-lg font-medium text-gray-400 hover:text-white transition";
+            });
 
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.rate = 1.0;
-            utterance.pitch = 1.0;
-            
-            // Try to pick a natural voice
-            const voices = synth.getVoices();
-            const preferredVoice = voices.find(v => v.lang.includes('en') && (v.name.includes('Google') || v.name.includes('Natural') || v.name.includes('Samantha')));
-            if (preferredVoice) utterance.voice = preferredVoice;
+            if (type === 'ALL') document.getElementById('btn-all').className = "px-3 py-1.5 rounded-lg font-medium text-white bg-indigo-600 transition";
+            if (type === 'ARR') document.getElementById('btn-arr').className = "px-3 py-1.5 rounded-lg font-medium text-white bg-indigo-600 transition";
+            if (type === 'DEP') document.getElementById('btn-dep').className = "px-3 py-1.5 rounded-lg font-medium text-white bg-indigo-600 transition";
 
-            utterance.onstart = () => {
-                isSpeaking = true;
-                updateState("Speaking...", "Voice assistance active");
-            };
-
-            utterance.onend = () => {
-                isSpeaking = false;
-                updateState("Tap mic to talk", "KLIA Voice Assistant Ready");
-            };
-
-            utterance.onerror = () => {
-                isSpeaking = false;
-                updateState("Tap mic to talk", "KLIA Voice Assistant Ready");
-            };
-
-            synth.speak(utterance);
+            filterFlights();
         }
 
-        // Interface Helpers
-        function updateState(mainText, subText) {
-            document.getElementById('assistant-state').innerText = mainText;
-            document.getElementById('sub-state').innerText = subText;
+        // Search & Multi-Filter Engine
+        function filterFlights() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const terminal = document.getElementById('terminal-filter').value;
+
+            const filtered = mockFlights.filter(f => {
+                const matchesSearch = f.code.toLowerCase().includes(query) || 
+                                      f.airline.toLowerCase().includes(query) || 
+                                      f.city.toLowerCase().includes(query);
+                const matchesType = activeTypeFilter === "ALL" || f.type === activeTypeFilter;
+                const matchesTerminal = terminal === "ALL" || f.terminal === terminal;
+
+                return matchesSearch && matchesType && matchesTerminal;
+            });
+
+            renderTable(filtered);
         }
 
-        function appendMessage(sender, text) {
-            const stream = document.getElementById('chat-stream');
-            const msgNode = document.createElement('div');
-            msgNode.className = "flex gap-3 items-start animate-fade-in";
-            
-            if (sender === 'User') {
-                msgNode.innerHTML = `
-                    <div class="w-7 h-7 rounded-lg bg-gray-700/60 border border-white/10 flex items-center justify-center shrink-0 text-xs">
-                        <i class="fa-solid fa-user text-gray-300"></i>
-                    </div>
-                    <div class="text-sm text-gray-200 font-medium">${text}</div>
-                `;
-            } else {
-                msgNode.innerHTML = `
-                    <div class="w-7 h-7 rounded-lg bg-indigo-600/40 border border-indigo-400/30 flex items-center justify-center shrink-0 text-xs">
-                        <i class="fa-solid fa-sparkles text-indigo-300"></i>
-                    </div>
-                    <div class="text-sm text-indigo-100">${text}</div>
-                `;
-            }
-            stream.appendChild(msgNode);
-            stream.scrollTop = stream.scrollHeight;
+        // Refresh Trigger
+        function refreshData() {
+            const icon = document.getElementById('refresh-icon');
+            icon.classList.add('fa-spin');
+            setTimeout(() => {
+                icon.classList.remove('fa-spin');
+                filterFlights();
+            }, 500);
         }
 
-        function handleTextInput() {
-            const input = document.getElementById('text-input');
-            const val = input.value.trim();
-            if (val) {
-                appendMessage('User', val);
-                processQuery(val);
-                input.value = '';
-            }
-        }
-
-        function askPreset(question) {
-            appendMessage('User', question);
-            processQuery(question);
-        }
-
-        // Allow Enter key to trigger search
-        document.getElementById('text-input').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') handleTextInput();
-        });
-
-        // Dynamic Canvas Renderer (Gemini Fluid Orb Simulation)
-        function renderGeminiOrb() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            const centerX = canvas.width / 2;
-            const centerY = canvas.height / 2;
-
-            pulsePhase += isSpeaking ? 0.08 : (isListening ? 0.05 : 0.02);
-
-            // Radius calculation depending on audio status
-            let baseRadius = 75;
-            if (isListening) baseRadius = 85 + Math.sin(pulsePhase * 3) * 8;
-            if (isSpeaking) baseRadius = 90 + Math.cos(pulsePhase * 4) * 12;
-
-            // Multi-layered Fluid Gradients
-            const grad = ctx.createRadialGradient(
-                centerX + Math.sin(pulsePhase) * 15, 
-                centerY + Math.cos(pulsePhase) * 15, 
-                10, 
-                centerX, 
-                centerY, 
-                baseRadius + 20
-            );
-
-            if (isListening) {
-                grad.addColorStop(0, 'rgba(239, 68, 68, 0.9)');
-                grad.addColorStop(0.4, 'rgba(245, 158, 11, 0.7)');
-                grad.addColorStop(0.8, 'rgba(168, 85, 247, 0.5)');
-                grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-            } else if (isSpeaking) {
-                grad.addColorStop(0, 'rgba(59, 130, 246, 0.9)');
-                grad.addColorStop(0.4, 'rgba(147, 51, 234, 0.8)');
-                grad.addColorStop(0.8, 'rgba(236, 72, 153, 0.5)');
-                grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-            } else {
-                grad.addColorStop(0, 'rgba(99, 102, 241, 0.95)');
-                grad.addColorStop(0.4, 'rgba(168, 85, 247, 0.7)');
-                grad.addColorStop(0.7, 'rgba(236, 72, 153, 0.4)');
-                grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-            }
-
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, baseRadius, 0, Math.PI * 2);
-            ctx.fillStyle = grad;
-            ctx.fill();
-
-            // Dynamic Inner Waves
-            ctx.save();
-            ctx.globalCompositeOperation = 'lighter';
-            for (let i = 0; i < 3; i++) {
-                ctx.beginPath();
-                const waveRadius = baseRadius * (0.6 + i * 0.15) + Math.sin(pulsePhase + i) * 6;
-                ctx.arc(
-                    centerX + Math.sin(pulsePhase + i * 2) * 10,
-                    centerY + Math.cos(pulsePhase + i * 2) * 10,
-                    waveRadius, 0, Math.PI * 2
-                );
-                ctx.fillStyle = i % 2 === 0 ? 'rgba(255, 255, 255, 0.15)' : 'rgba(192, 132, 252, 0.2)';
-                ctx.fill();
-            }
-            ctx.restore();
-
-            requestAnimationFrame(renderGeminiOrb);
-        }
-
-        // Canvas click handler
-        canvas.addEventListener('click', toggleSpeech);
-
-        // Start render loop
-        renderGeminiOrb();
+        // Initial Render
+        renderTable(mockFlights);
     </script>
 </body>
 </html>
