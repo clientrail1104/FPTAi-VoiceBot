@@ -3,312 +3,180 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MYairports KLIA T1 - Gemini Voice Assistant & Interactive Tour</title>
+  <title>Voice Assistant UI</title>
   <style>
     :root {
-      --primary: #003366;
-      --accent: #d90429;
-      --bg: #f4f7f6;
-      --card-bg: #ffffff;
-      --text: #2d3748;
+      --bg-color: #0d0f12;
+      --card-bg: #1a1d24;
+      --accent-color: #4c8bf5;
+      --accent-glow: rgba(76, 139, 245, 0.4);
+      --text-color: #f0f3f8;
+      --text-muted: #9aa0a6;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    body { background-color: var(--bg); color: var(--text); display: flex; flex-direction: column; min-height: 100vh; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
 
-    /* Header & Nav */
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      justify-content: space-between;
+      align-items: center;
+      padding: 24px;
+    }
+
     header {
-      background: var(--primary);
-      color: white;
-      padding: 1rem 2rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-    header h1 { font-size: 1.5rem; display: flex; align-items: center; gap: 0.5rem; }
-    header button {
-      background: var(--accent);
-      color: white;
-      border: none;
-      padding: 0.6rem 1.2rem;
-      border-radius: 20px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: background 0.2s;
-    }
-    header button:hover { background: #b00320; }
-
-    /* App Layout */
-    .container {
-      display: grid;
-      grid-template-columns: 1fr 380px;
-      gap: 1.5rem;
-      max-width: 1400px;
-      width: 100%;
-      margin: 2rem auto;
-      padding: 0 1rem;
-      flex-grow: 1;
-    }
-
-    /* Main Dashboard Modules */
-    .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
-    .card {
-      background: var(--card-bg);
-      padding: 1.5rem;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-      border-top: 4px solid var(--primary);
-      position: relative;
-    }
-    .card h2 { font-size: 1.1rem; color: var(--primary); margin-bottom: 0.8rem; }
-    .card p { font-size: 0.9rem; color: #666; margin-bottom: 1rem; }
-    .card button.action-btn {
-      background: #edf2f7;
-      color: var(--primary);
-      border: none;
-      padding: 0.5rem 1rem;
-      border-radius: 6px;
-      font-weight: 600;
-      cursor: pointer;
-      width: 100%;
-    }
-    .card button.action-btn:hover { background: #e2e8f0; }
-
-    /* Real-Time Flight Tracker Simulation */
-    .flight-list { list-style: none; margin-top: 0.5rem; }
-    .flight-item {
-      display: flex;
-      justify-content: space-between;
-      padding: 0.5rem 0;
-      border-bottom: 1px solid #edf2f7;
-      font-size: 0.85rem;
-    }
-    .status-on-time { color: #38a169; font-weight: bold; }
-
-    /* Voicebot Panel */
-    .voicebot-panel {
-      background: var(--card-bg);
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      display: flex;
-      flex-direction: column;
-      height: 600px;
-      overflow: hidden;
-      border: 1px solid #e2e8f0;
-    }
-    .bot-header {
-      background: var(--primary);
-      color: white;
-      padding: 1rem;
       text-align: center;
-      font-weight: bold;
+      margin-top: 12px;
     }
-    .chat-box {
-      flex: 1;
-      padding: 1rem;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 0.8rem;
-      background: #fafafa;
-    }
-    .msg { padding: 0.8rem 1rem; border-radius: 12px; max-width: 80%; font-size: 0.9rem; line-height: 1.4; }
-    .msg.bot { background: #eef2ff; color: #1e3a8a; align-self: flex-start; border-bottom-left-radius: 2px; }
-    .msg.user { background: var(--primary); color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
-    
-    .bot-controls {
-      padding: 1rem;
-      background: white;
-      border-top: 1px solid #edf2f7;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-      align-items: center;
-    }
-    .mic-btn {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      background: var(--accent);
-      color: white;
-      border: none;
+
+    header h1 {
       font-size: 1.5rem;
-      cursor: pointer;
-      box-shadow: 0 4px 10px rgba(217, 4, 41, 0.4);
-      transition: transform 0.2s, background 0.2s;
+      font-weight: 500;
+      letter-spacing: -0.5px;
     }
-    .mic-btn.listening {
-      animation: pulse 1.2s infinite;
-      background: #38a169;
-    }
-    @keyframes pulse {
-      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(56, 161, 105, 0.7); }
-      70% { transform: scale(1.1); box-shadow: 0 0 0 15px rgba(56, 161, 105, 0); }
-      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(56, 161, 105, 0); }
-    }
-    .status-text { font-size: 0.8rem; color: #718096; }
 
-    /* Interactive Tour Overlay */
-    .tour-overlay {
-      position: fixed;
-      top: 0; left: 0; width: 100vw; height: 100vh;
-      background: rgba(0,0,0,0.6);
-      display: none;
-      z-index: 1000;
+    .conversation-container {
+      width: 100%;
+      max-width: 600px;
+      flex-grow: 1;
+      overflow-y: auto;
+      margin: 24px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding: 12px;
     }
-    .tour-card {
-      position: absolute;
-      background: white;
-      padding: 1.5rem;
-      border-radius: 8px;
-      width: 320px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-      z-index: 1001;
-      transition: all 0.3s ease;
-    }
-    .tour-card h3 { color: var(--primary); margin-bottom: 0.5rem; }
-    .tour-card p { font-size: 0.9rem; color: #4a5568; margin-bottom: 1rem; }
-    .tour-card .tour-nav { display: flex; justify-content: space-between; }
-    .tour-card button {
-      padding: 0.4rem 0.8rem;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 0.85rem;
-    }
-    .tour-card .next-btn { background: var(--primary); color: white; }
 
-    .highlight-target {
+    .message {
+      padding: 14px 18px;
+      border-radius: 18px;
+      max-width: 80%;
+      line-height: 1.5;
+      font-size: 1rem;
+    }
+
+    .user-message {
+      align-self: flex-end;
+      background-color: #2b303b;
+      color: var(--text-color);
+      border-bottom-right-radius: 4px;
+    }
+
+    .bot-message {
+      align-self: flex-start;
+      background-color: var(--card-bg);
+      border: 1px solid #2a2e39;
+      color: var(--text-color);
+      border-bottom-left-radius: 4px;
+    }
+
+    .controls-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      width: 100%;
+      margin-bottom: 16px;
+    }
+
+    .status-indicator {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      height: 20px;
+    }
+
+    /* Orb / Mic Button Visualizer */
+    .mic-button {
       position: relative;
-      z-index: 1001 !important;
-      box-shadow: 0 0 0 4px var(--accent) !important;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: none;
+      background: linear-gradient(135deg, #4c8bf5, #8ab4f8);
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      outline: none;
+      box-shadow: 0 0 20px var(--accent-glow);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .mic-button:hover {
+      transform: scale(1.05);
+    }
+
+    .mic-button svg {
+      width: 32px;
+      height: 32px;
+      fill: #ffffff;
+      z-index: 2;
+    }
+
+    /* Pulse animations for voice active state */
+    .mic-button.listening::before,
+    .mic-button.listening::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border-radius: 50%;
+      background-color: var(--accent-color);
+      opacity: 0.6;
+      z-index: 1;
+      animation: pulse 2s infinite ease-out;
+    }
+
+    .mic-button.listening::after {
+      animation-delay: 1s;
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+        opacity: 0.6;
+      }
+      100% {
+        transform: scale(1.8);
+        opacity: 0;
+      }
     }
   </style>
 </head>
 <body>
 
   <header>
-    <h1>✈️ MYairports KLIA T1 Platform</h1>
-    <button onclick="startTour()">Take Feature Tour</button>
+    <h1>Voice Assistant Interface</h1>
   </header>
 
-  <div class="container">
-    <!-- App Main Features Grid -->
-    <div class="dashboard">
-      <div class="card" id="tour-step-1">
-        <h2>📋 Plan My Journey</h2>
-        <p>Real-time itinerary updates, check-in counter details, and Aerotrain transfer timing for KLIA Terminal 1.</p>
-        <button class="action-btn" onclick="triggerBotQuery('Plan my journey')">Check Journey Status</button>
-      </div>
+  <main class="conversation-container" id="conversation"></main>
 
-      <div class="card" id="tour-step-2">
-        <h2>✈️ Live Flight Tracking</h2>
-        <p>Monitor arrivals and departures dynamically.</p>
-        <ul class="flight-list">
-          <li class="flight-item"><span>MH123 (Sydney)</span><span class="status-on-time">Gate C12 - On Time</span></li>
-          <li class="flight-item"><span>SQ105 (Singapore)</span><span class="status-on-time">Gate G8 - On Time</span></li>
-          <li class="flight-item"><span>AK5202 (Kuching)</span><span class="status-on-time">Gate K2 - Boarding</span></li>
-        </ul>
-      </div>
-
-      <div class="card" id="tour-step-3">
-        <h2>🛒 Shop & Dine Directory</h2>
-        <p>Discover duty-free cosmetics, local Malaysian delicacies, and luxury brand promotions across gates.</p>
-        <button class="action-btn" onclick="triggerBotQuery('Where can I dine?')">Find Restaurants</button>
-      </div>
-
-      <div class="card" id="tour-step-4">
-        <h2>🛂 Digital Arrival Card & EZPaz</h2>
-        <p>Quick access to digital arrival form guidelines and express terminal navigation icons.</p>
-        <button class="action-btn" onclick="triggerBotQuery('How to complete digital arrival card?')">Open Arrival Info</button>
-      </div>
-
-      <div class="card" id="tour-step-5">
-        <h2>🚘 Parking & Transport</h2>
-        <p>Seamless car park payments for Terminal 1 and KLIA Transit/Express train connections.</p>
-        <button class="action-btn" onclick="triggerBotQuery('How do I pay for parking?')">View Transport Options</button>
-      </div>
-
-      <div class="card" id="tour-step-6">
-        <h2>🦋 Special Assistance</h2>
-        <p>Access the Butterfly Effect initiative for hidden disabilities, wheelchair support, and prayer room locations.</p>
-        <button class="action-btn" onclick="triggerBotQuery('Where are the prayer rooms?')">Find Assistance</button>
-      </div>
-    </div>
-
-    <!-- Gemini Voicebot Component -->
-    <div class="voicebot-panel" id="tour-step-voicebot">
-      <div class="bot-header">
-        Gemini Unlimited Voice Assistance
-      </div>
-      <div class="chat-box" id="chatBox">
-        <div class="msg bot">
-          Selamat Datang! I am your AI assistant for MYairports KLIA Terminal 1. Click the microphone below to ask me anything about your journey, flights, dining, or terminal services!
-        </div>
-      </div>
-      <div class="bot-controls">
-        <button class="mic-btn" id="micBtn" onclick="toggleVoiceRecognition()" title="Click to Speak">🎙️</button>
-        <span class="status-text" id="statusText">Tap mic to speak (Continuous Mode)</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Tour Overlay & Card -->
-  <div class="tour-overlay" id="tourOverlay"></div>
-  <div class="tour-card" id="tourCard" style="display: none;">
-    <h3 id="tourTitle">Tour Step</h3>
-    <p id="tourDesc">Description goes here...</p>
-    <div class="tour-nav">
-      <button onclick="endTour()">Skip</button>
-      <button class="next-btn" onclick="nextTourStep()">Next Step</button>
-    </div>
+  <div class="controls-container">
+    <div class="status-indicator" id="status">Tap the button to start speaking</div>
+    <button class="mic-button" id="micBtn" aria-label="Toggle voice input">
+      <svg viewBox="0 0 24 24">
+        <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+        <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+      </svg>
+    </button>
   </div>
 
   <script>
-    /* -------------------------------------------------------------------------- */
-    /* 1. Knowledge Base & Response Engine (Gemini-Inspired Logic)                */
-    /* -------------------------------------------------------------------------- */
-    const knowledgeBase = [
-      {
-        keywords: ["journey", "plan", "check-in", "aerotrain", "terminal 1"],
-        response: "The Plan My Journey feature tracks your full flight path at KLIA Terminal 1, providing live check-in counters, gate updates, and shuttle or Aerotrain departure status."
-      },
-      {
-        keywords: ["flight", "tracking", "departures", "arrivals", "status", "gate"],
-        response: "You can track live flight departures and arrivals directly on the dashboard. For instance, MH123 to Sydney is currently on time at Gate C12."
-      },
-      {
-        keywords: ["dine", "eat", "restaurant", "food", "shop", "duty free"],
-        response: "KLIA T1 features a wide array of dining and shopping! Enjoy local food at the Food Garden or browse duty-free luxury cosmetics and chocolates near Satellite Building."
-      },
-      {
-        keywords: ["arrival card", "ezpaz", "digital card", "immigration"],
-        response: "Passengers arriving in Malaysia must complete the Digital Arrival Card online prior to arrival. Follow the transport and immigration icons on your app for smooth entry."
-      },
-      {
-        keywords: ["parking", "car", "transport", "train", "express"],
-        response: "Car park payments for KLIA Terminal 1 can be completed digitally. Train links (KLIA Ekspres) are located at Level 1 of the Main Terminal Building."
-      },
-      {
-        keywords: ["prayer", "butterfly", "special assistance", "disability", "help"],
-        response: "KLIA T1 offers Prayer Rooms across all levels. We also support the Butterfly Effect program for passengers needing invisible disability assistance."
-      }
-    ];
+    const micBtn = document.getElementById('micBtn');
+    const statusText = document.getElementById('status');
+    const conversation = document.getElementById('conversation');
 
-    function generateResponse(text) {
-      const lower = text.toLowerCase();
-      for (let item of knowledgeBase) {
-        if (item.keywords.some(kw => lower.includes(kw))) {
-          return item.response;
-        }
-      }
-      return "I can help with flight tracking, Plan My Journey, dining directories, parking, and special assistance at KLIA Terminal 1. Could you specify what service you're looking for?";
-    }
-
-    /* -------------------------------------------------------------------------- */
-    /* 2. Web Speech API (Voicebot Implementation)                                 */
-    /* -------------------------------------------------------------------------- */
+    // Speech Recognition setup
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     let recognition;
     let isListening = false;
@@ -316,176 +184,75 @@
     if (SpeechRecognition) {
       recognition = new SpeechRecognition();
       recognition.continuous = false;
+      recognition.interimResults = false;
       recognition.lang = 'en-US';
 
       recognition.onstart = () => {
         isListening = true;
-        document.getElementById('micBtn').classList.add('listening');
-        document.getElementById('statusText').innerText = "Listening... Speak now";
+        micBtn.classList.add('listening');
+        statusText.textContent = "Listening...";
+      };
+
+      recognition.onend = () => {
+        isListening = false;
+        micBtn.classList.remove('listening');
+        statusText.textContent = "Tap to speak";
       };
 
       recognition.onresult = (event) => {
         const transcript = event.results[0][0].transcript;
-        addChatMessage(transcript, 'user');
-        
-        // Process response with Gemini Voice Logic
-        const botReply = generateResponse(transcript);
-        setTimeout(() => {
-          addChatMessage(botReply, 'bot');
-          speakText(botReply);
-        }, 500);
+        appendMessage(transcript, 'user');
+        handleResponse(transcript);
       };
 
       recognition.onerror = (event) => {
-        console.error("Speech Recognition Error: ", event.error);
-        stopListening();
-      };
-
-      recognition.onend = () => {
-        stopListening();
+        statusText.textContent = "Error occurred: " + event.error;
+        micBtn.classList.remove('listening');
+        isListening = false;
       };
     } else {
-      document.getElementById('statusText').innerText = "Voice Recognition not supported in this browser.";
+      statusText.textContent = "Web Speech API is not supported in this browser.";
+      micBtn.disabled = true;
     }
 
-    function toggleVoiceRecognition() {
+    micBtn.addEventListener('click', () => {
       if (!recognition) return;
+
       if (isListening) {
         recognition.stop();
       } else {
         recognition.start();
       }
+    });
+
+    function appendMessage(text, sender) {
+      const msgDiv = document.createElement('div');
+      msgDiv.classList.add('message', sender === 'user' ? 'user-message' : 'bot-message');
+      msgDiv.textContent = text;
+      conversation.appendChild(msgDiv);
+      conversation.scrollTop = conversation.scrollHeight;
     }
 
-    function stopListening() {
-      isListening = false;
-      document.getElementById('micBtn').classList.remove('listening');
-      document.getElementById('statusText').innerText = "Tap mic to speak (Continuous Mode)";
+    function handleResponse(userInput) {
+      statusText.textContent = "Thinking...";
+      
+      // Simulate backend AI response delay
+      setTimeout(() => {
+        const replyText = `Received request: "${userInput}". How else can I help you?`;
+        appendMessage(replyText, 'bot');
+        speakText(replyText);
+      }, 1000);
     }
 
     function speakText(text) {
       if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel(); // Stop prior speech
+        statusText.textContent = "Speaking...";
         const utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = 1.0;
-        utterance.pitch = 1.0;
+        utterance.onend = () => {
+          statusText.textContent = "Tap to speak";
+        };
         window.speechSynthesis.speak(utterance);
       }
-    }
-
-    function addChatMessage(text, sender) {
-      const chatBox = document.getElementById('chatBox');
-      const msgDiv = document.createElement('div');
-      msgDiv.className = `msg ${sender}`;
-      msgDiv.innerText = text;
-      chatBox.appendChild(msgDiv);
-      chatBox.scrollTop = chatBox.scrollHeight;
-    }
-
-    function triggerBotQuery(queryText) {
-      addChatMessage(queryText, 'user');
-      const botReply = generateResponse(queryText);
-      setTimeout(() => {
-        addChatMessage(botReply, 'bot');
-        speakText(botReply);
-      }, 300);
-    }
-
-    /* -------------------------------------------------------------------------- */
-    /* 3. Interactive Tour Script                                                */
-    /* -------------------------------------------------------------------------- */
-    const tourSteps = [
-      {
-        elementId: "tour-step-1",
-        title: "Plan My Journey",
-        desc: "Track flight schedules, check-in gates, and Aerotrain transfers seamlessly."
-      },
-      {
-        elementId: "tour-step-2",
-        title: "Live Flight Tracking",
-        desc: "Stay updated with real-time departure and arrival status for KLIA T1."
-      },
-      {
-        elementId: "tour-step-3",
-        title: "Shop & Dine",
-        desc: "Explore dining spots, cafes, and exclusive duty-free promotions."
-      },
-      {
-        elementId: "tour-step-4",
-        title: "Digital Arrival Card",
-        desc: "Quick access links to complete immigration documentation digitally."
-      },
-      {
-        elementId: "tour-step-5",
-        title: "Parking & Transit",
-        desc: "Pay parking fees online and locate KLIA Ekspres connection points."
-      },
-      {
-        elementId: "tour-step-6",
-        title: "Special Assistance",
-        desc: "Locate prayer rooms and request special assistance like the Butterfly Effect program."
-      },
-      {
-        elementId: "tour-step-voicebot",
-        title: "Gemini Unlimited Voicebot",
-        desc: "Use continuous hands-free voice commands to navigate the airport and solve queries in real-time."
-      }
-    ];
-
-    let currentTourIndex = 0;
-
-    function startTour() {
-      currentTourIndex = 0;
-      document.getElementById('tourOverlay').style.display = 'block';
-      document.getElementById('tourCard').style.display = 'block';
-      showTourStep(currentTourIndex);
-    }
-
-    function showTourStep(index) {
-      // Clear previous highlights
-      document.querySelectorAll('.highlight-target').forEach(el => el.classList.remove('highlight-target'));
-
-      const step = tourSteps[index];
-      const targetEl = document.getElementById(step.elementId);
-      
-      if (targetEl) {
-        targetEl.classList.add('highlight-target');
-        const rect = targetEl.getBoundingClientRect();
-        const tourCard = document.getElementById('tourCard');
-
-        // Position Tour card nearby target
-        let top = rect.bottom + window.scrollY + 10;
-        let left = rect.left + window.scrollX;
-
-        // Keep inside window bounds
-        if (left + 320 > window.innerWidth) left = window.innerWidth - 340;
-        if (top + 180 > window.innerHeight + window.scrollY) top = rect.top + window.scrollY - 190;
-
-        tourCard.style.top = `${top}px`;
-        tourCard.style.left = `${left}px`;
-
-        document.getElementById('tourTitle').innerText = `${index + 1}/${tourSteps.length}: ${step.title}`;
-        document.getElementById('tourDesc').innerText = step.desc;
-        
-        // Voice narrative of tour
-        speakText(`${step.title}. ${step.desc}`);
-      }
-    }
-
-    function nextTourStep() {
-      currentTourIndex++;
-      if (currentTourIndex < tourSteps.length) {
-        showTourStep(currentTourIndex);
-      } else {
-        endTour();
-      }
-    }
-
-    function endTour() {
-      document.querySelectorAll('.highlight-target').forEach(el => el.classList.remove('highlight-target'));
-      document.getElementById('tourOverlay').style.display = 'none';
-      document.getElementById('tourCard').style.display = 'none';
-      speakText("Tour completed. Feel free to use the Gemini voice bot anytime.");
     }
   </script>
 </body>
