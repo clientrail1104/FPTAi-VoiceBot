@@ -1,175 +1,126 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MYAir Customer Support | FPT.AI Voicebot</title>
-    <!-- Tailwind CSS for styling -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <style>
-        .airline-bg {
-            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
-        }
-        /* Custom styling for FPT.AI floating bot widget container */
-        #fpt_ai_livechat_container {
-            z-index: 999999 !important;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Airport Voice Assistant</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 20px;
+      text-align: center;
+      background-color: #f9f9f9;
+    }
+    .card {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    button {
+      background-color: #0056b3;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 16px;
+      border-radius: 24px;
+      cursor: pointer;
+      margin-top: 15px;
+    }
+    button:hover {
+      background-color: #003d80;
+    }
+    .status {
+      margin-top: 20px;
+      font-weight: bold;
+      color: #555;
+    }
+    .transcript {
+      margin-top: 15px;
+      font-style: italic;
+      color: #333;
+    }
+  </style>
 </head>
-<body class="bg-gray-50 text-gray-800 font-sans min-h-screen flex flex-col justify-between">
+<body>
 
-    <!-- Header / Navbar -->
-    <header class="airline-bg text-white shadow-md">
-        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-            <div class="flex items-center space-x-3">
-                <i class="fa-solid font-bold text-2xl text-red-500 fa-plane-departure"></i>
-                <span class="text-xl font-bold tracking-wide">MYAir Customer Care</span>
-            </div>
-            <div class="flex items-center space-x-4 text-sm">
-                <span class="hidden md:inline"><i class="fa-solid fa-phone mr-1"></i> 1-300-88-2525</span>
-                <button class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg font-medium transition duration-200">
-                    Manage Booking (PNR)
-                </button>
-            </div>
-        </div>
-    </header>
+  <div class="card">
+    <h2>Airport Information Voice Assistant</h2>
+    <p>Press the button below and ask a question about flights, facilities, or airport services.</p>
+    
+    <button id="start-btn">Start Listening</button>
+    
+    <div class="status" id="status-text">Status: Idle</div>
+    <div class="transcript" id="transcript-text"></div>
+  </div>
 
-    <!-- Main Hero Content -->
-    <main class="max-w-5xl mx-auto px-4 py-12 flex-grow">
-        <div class="text-center mb-10">
-            <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-3">
-                Apa khabar! How can we help your journey today?
-            </h1>
-            <p class="text-gray-600 text-lg max-w-2xl mx-auto">
-                Check flight status, modify bookings, or ask about baggage policies with our 24/7 FPT.AI Virtual Assistant.
-            </p>
-        </div>
+  <script>
+    const startBtn = document.getElementById('start-btn');
+    const statusText = document.getElementById('status-text');
+    const transcriptText = document.getElementById('transcript-text');
 
-        <!-- Quick Action Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-            <div onclick="triggerVoicebot('Flight Status')" class="cursor-pointer bg-white p-6 rounded-xl shadow-sm hover:shadow-md border border-gray-100 transition duration-200 flex flex-col items-center text-center">
-                <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center text-xl mb-4">
-                    <i class="fa-solid fa-plane-arrival"></i>
-                </div>
-                <h3 class="font-bold text-gray-800 text-lg mb-1">Flight Status</h3>
-                <p class="text-sm text-gray-500">Track real-time arrivals & departures (KLIA T1/T2, PEN, BKI)</p>
-            </div>
+    // Check for standard Web Speech API support
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-            <div onclick="triggerVoicebot('Baggage Allowance')" class="cursor-pointer bg-white p-6 rounded-xl shadow-sm hover:shadow-md border border-gray-100 transition duration-200 flex flex-col items-center text-center">
-                <div class="w-12 h-12 bg-red-50 text-red-600 rounded-full flex items-center justify-center text-xl mb-4">
-                    <i class="fa-solid fa-suitcase-rolling"></i>
-                </div>
-                <h3 class="font-bold text-gray-800 text-lg mb-1">Baggage Info</h3>
-                <p class="text-sm text-gray-500">Cabin limits, power bank rules, and excess baggage fees</p>
-            </div>
+    if (SpeechRecognition) {
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.lang = 'en-US';
 
-            <div onclick="triggerVoicebot('Voice Assistance')" class="cursor-pointer bg-white p-6 rounded-xl shadow-sm hover:shadow-md border border-gray-100 transition duration-200 flex flex-col items-center text-center">
-                <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center text-xl mb-4">
-                    <i class="fa-solid fa-microphone"></i>
-                </div>
-                <h3 class="font-bold text-gray-800 text-lg mb-1">Speak with Voicebot</h3>
-                <p class="text-sm text-gray-500">Multilingual support in BM, English, and Mandarin</p>
-            </div>
-        </div>
+      startBtn.addEventListener('click', () => {
+        recognition.start();
+        statusText.innerText = "Status: Listening...";
+      });
 
-        <!-- Flight Search Widget Mockup -->
-        <div class="bg-white p-6 rounded-2xl shadow-lg border border-gray-200">
-            <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                <i class="fa-solid fa-magnifying-glass text-blue-600 mr-2"></i> Quick PNR Lookup
-            </h2>
-            <form onsubmit="event.preventDefault(); triggerPNRLookup();" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                    <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Booking Reference (PNR)</label>
-                    <input type="text" id="pnrInput" placeholder="e.g. MH6X9K" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none uppercase font-mono" required>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Passenger Last Name</label>
-                    <input type="text" id="lastNameInput" placeholder="e.g. Ahmad" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
-                </div>
-                <div class="flex items-end">
-                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
-                        Check Booking
-                    </button>
-                </div>
-            </form>
-        </div>
-    </main>
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        transcriptText.innerText = `You said: "${transcript}"`;
+        statusText.innerText = "Status: Processing...";
+        
+        handleQuery(transcript);
+      };
 
-    <!-- Footer -->
-    <footer class="bg-gray-900 text-gray-400 py-6 text-center text-sm border-t border-gray-800">
-        <p>&copy; 2026 MYAir Berhad. Powered by FPT.AI Voicebot Technology.</p>
-    </footer>
+      recognition.onerror = (event) => {
+        statusText.innerText = `Error: ${event.error}`;
+      };
 
-    <!-- ================================================================= -->
-    <!-- FPT.AI WEBCHAT & VOICE WIDGET INTEGRATION SCRIPT -->
-    <!-- ================================================================= -->
-    <script>
-        // 1. Configuration variables for FPT.AI Voicebot SDK
-        let fpt_ai_livechat_configs = {
-            // Replace with your FPT.AI Bot Token & App ID from FPT Console
-            bot_id: "YOUR_FPT_AI_BOT_ID", 
-            token: "YOUR_FPT_AI_BOT_TOKEN",
-            
-            // Bot Customizations
-            title: "MYAir AI Voice & Support Assistant",
-            header_background: "linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%)",
-            bot_avatar: "https://cdn-icons-png.flaticon.com/512/4712/4712035.png",
-            user_avatar: "https://cdn-icons-png.flaticon.com/512/1144/1144760.png",
-            
-            // Speech / Voice Configurations
-            enable_voice: true,           // Enables STT/TTS voice feature
-            voice_language: "ms-MY",       // Default: Bahasa Malaysia (or 'en-US' / 'zh-CN')
-            voice_id: "my_female_voice",  // FPT AI Speech Voice Model
-            
-            // Custom CSS & UI settings
-            styles: {
-                header_name: "MYAir Assistant",
-                header_sub: "Online | Voice Enabled",
-                primary_color: "#1e3a8a"
-            }
-        };
-
-        // 2. Load the official FPT.AI Webchat Embed Script asynchronously
-        (function () {
-            let script = document.createElement("script");
-            script.type = "text/javascript";
-            script.async = true;
-            script.src = "https://livechat.fpt.ai/v3/src/bundle.js"; // FPT.AI Webchat Core Bundle
-            document.getElementsByTagName("head")[0].appendChild(script);
-        })();
-
-        // 3. Custom JS functions to trigger bot actions from frontend buttons
-        function triggerVoicebot(intentName) {
-            if (window.fpt_ai_livechat) {
-                window.fpt_ai_livechat.openWindow();
-                window.fpt_ai_livechat.sendPayload({
-                    type: "intent",
-                    name: intentName
-                });
-            } else {
-                alert("Opening FPT.AI Assistant for " + intentName + "...");
-            }
+      recognition.onend = () => {
+        if (statusText.innerText === "Status: Listening...") {
+          statusText.innerText = "Status: Idle";
         }
+      };
+    } else {
+      statusText.innerText = "Web Speech API is not supported in this browser.";
+      startBtn.disabled = true;
+    }
 
-        function triggerPNRLookup() {
-            let pnr = document.getElementById("pnrInput").value;
-            let name = document.getElementById("lastNameInput").value;
-            
-            if (window.fpt_ai_livechat) {
-                window.fpt_ai_livechat.openWindow();
-                // Pass PNR and Name payload directly to FPT.AI Multi-Agent orchestrator
-                window.fpt_ai_livechat.sendPayload({
-                    type: "text",
-                    text: `Check booking PNR ${pnr} for ${name}`
-                });
-            } else {
-                alert(`Querying FPT.AI backend for PNR: ${pnr}, Last Name: ${name}`);
-            }
-        }
-    </script>
+    // Process user input and trigger voice response
+    function handleQuery(query) {
+      const lowerQuery = query.toLowerCase();
+      let response = "I'm sorry, I don't have information on that topic. Please check the main information desk.";
 
+      if (lowerQuery.includes("flight") || lowerQuery.includes("gate")) {
+        response = "For flight schedules and gate assignments, please check the digital display boards or use the official airport mobile application.";
+      } else if (lowerQuery.includes("wifi") || lowerQuery.includes("internet")) {
+        response = "Free Wi-Fi is available throughout the airport terminal. Connect to the official airport Wi-Fi network to get online.";
+      } else if (lowerQuery.includes("baggage") || lowerQuery.includes("luggage")) {
+        response = "Baggage claim is located on the ground level after clearing arrival immigration.";
+      }
+
+      speakResponse(response);
+    }
+
+    // Text-to-Speech synthesis
+    function speakResponse(text) {
+      statusText.innerText = "Status: Speaking...";
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.onend = () => {
+        statusText.innerText = "Status: Idle";
+      };
+      window.speechSynthesis.speak(utterance);
+    }
+  </script>
 </body>
 </html>
