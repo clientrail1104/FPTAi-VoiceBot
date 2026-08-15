@@ -1,175 +1,442 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ms">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MYAir Customer Support | FPT.AI Voicebot</title>
-    <!-- Tailwind CSS for styling -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <style>
-        .airline-bg {
-            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
-        }
-        /* Custom styling for FPT.AI floating bot widget container */
-        #fpt_ai_livechat_container {
-            z-index: 999999 !important;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Borang e-Bantuan</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f3f5f7;
+      color: #1f2937;
+    }
+
+    .page-header {
+      background: #0f4c81;
+      color: #ffffff;
+      padding: 26px 20px;
+      text-align: center;
+    }
+
+    .page-header h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+
+    .page-header p {
+      margin: 8px 0 0;
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .container {
+      width: min(900px, calc(100% - 32px));
+      margin: 32px auto;
+    }
+
+    .form-card {
+      background: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+    }
+
+    .section {
+      padding: 28px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .section:last-child {
+      border-bottom: none;
+    }
+
+    .section-title {
+      margin: 0 0 22px;
+      font-size: 18px;
+      color: #0f4c81;
+      border-left: 4px solid #0f4c81;
+      padding-left: 12px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .form-group.full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .required {
+      color: #dc2626;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 11px 12px;
+      font-size: 14px;
+      background: #ffffff;
+      color: #111827;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #0f4c81;
+      box-shadow: 0 0 0 3px rgba(15, 76, 129, 0.12);
+    }
+
+    textarea {
+      min-height: 150px;
+      resize: vertical;
+    }
+
+    .help-text {
+      margin: 0;
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      padding: 24px 28px;
+      background: #f8fafc;
+    }
+
+    button {
+      border: 0;
+      border-radius: 6px;
+      padding: 11px 22px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-secondary {
+      background: #e5e7eb;
+      color: #374151;
+    }
+
+    .btn-primary {
+      background: #0f4c81;
+      color: #ffffff;
+    }
+
+    .btn-primary:hover {
+      background: #0b3d68;
+    }
+
+    .success-message {
+      display: none;
+      margin: 0 28px 24px;
+      padding: 14px 16px;
+      border-radius: 6px;
+      background: #ecfdf5;
+      border: 1px solid #a7f3d0;
+      color: #065f46;
+      font-size: 14px;
+    }
+
+    @media (max-width: 700px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .form-group.full {
+        grid-column: auto;
+      }
+
+      .section {
+        padding: 22px 18px;
+      }
+
+      .actions {
+        padding: 20px 18px;
+        flex-direction: column-reverse;
+      }
+
+      button {
+        width: 100%;
+      }
+    }
+  </style>
 </head>
-<body class="bg-gray-50 text-gray-800 font-sans min-h-screen flex flex-col justify-between">
 
-    <!-- Header / Navbar -->
-    <header class="airline-bg text-white shadow-md">
-        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-            <div class="flex items-center space-x-3">
-                <i class="fa-solid font-bold text-2xl text-red-500 fa-plane-departure"></i>
-                <span class="text-xl font-bold tracking-wide">MYAir Customer Care</span>
-            </div>
-            <div class="flex items-center space-x-4 text-sm">
-                <span class="hidden md:inline"><i class="fa-solid fa-phone mr-1"></i> 1-300-88-2525</span>
-                <button class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg font-medium transition duration-200">
-                    Manage Booking (PNR)
-                </button>
-            </div>
+<body>
+  <header class="page-header">
+    <h1>Borang e-Bantuan</h1>
+    <p>Sila lengkapkan maklumat di bawah untuk menghantar maklumbalas anda.</p>
+  </header>
+
+  <main class="container">
+    <form id="ebantuanForm" class="form-card" enctype="multipart/form-data">
+      <section class="section">
+        <h2 class="section-title">BUTIRAN MAKLUMBALAS</h2>
+
+        <div class="form-grid">
+          <div class="form-group full">
+            <label for="tajuk">
+              Tajuk Maklumbalas <span class="required">*</span>
+            </label>
+            <input
+              type="text"
+              id="tajuk"
+              name="tajuk_maklumbalas"
+              placeholder="Masukkan tajuk maklumbalas"
+              required
+            />
+          </div>
+
+          <div class="form-group full">
+            <label for="negeri">
+              Negeri Terlibat <span class="required">*</span>
+            </label>
+            <select id="negeri" name="negeri_terlibat" required>
+              <option value="">-- Sila Pilih Negeri --</option>
+              <option>BINTULU SARAWAK</option>
+              <option>JOHOR</option>
+              <option>KEDAH</option>
+              <option>KELANTAN</option>
+              <option>KUALA LUMPUR</option>
+              <option>LABUAN</option>
+              <option>LUAR NEGARA</option>
+              <option>MELAKA</option>
+              <option>MIRI SARAWAK</option>
+              <option>NEGERI SEMBILAN</option>
+              <option>PAHANG</option>
+              <option>PERAK</option>
+              <option>PERLIS</option>
+              <option>PULAU PINANG</option>
+              <option>PUTRAJAYA</option>
+              <option>SABAH</option>
+              <option>SANDAKAN SABAH</option>
+              <option>SARAWAK</option>
+              <option>SELANGOR</option>
+              <option>TAWAU SABAH</option>
+              <option>TERENGGANU</option>
+              <option>SIBU SARAWAK</option>
+            </select>
+          </div>
+
+          <div class="form-group full">
+            <label for="huraian">
+              Huraian Maklumbalas <span class="required">*</span>
+            </label>
+            <textarea
+              id="huraian"
+              name="huraian_maklumbalas"
+              placeholder="Sila terangkan maklumbalas anda dengan lengkap"
+              required
+            ></textarea>
+          </div>
         </div>
-    </header>
+      </section>
 
-    <!-- Main Hero Content -->
-    <main class="max-w-5xl mx-auto px-4 py-12 flex-grow">
-        <div class="text-center mb-10">
-            <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-3">
-                Apa khabar! How can we help your journey today?
-            </h1>
-            <p class="text-gray-600 text-lg max-w-2xl mx-auto">
-                Check flight status, modify bookings, or ask about baggage policies with our 24/7 FPT.AI Virtual Assistant.
+      <section class="section">
+        <h2 class="section-title">BUTIRAN PERIBADI</h2>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="nama">
+              Nama <span class="required">*</span>
+            </label>
+            <input type="text" id="nama" name="nama" required />
+          </div>
+
+          <div class="form-group">
+            <label for="mykad">
+              MyKad/Pasport <span class="required">*</span>
+            </label>
+            <input
+              type="text"
+              id="mykad"
+              name="mykad_pasport"
+              placeholder="Contoh: 900101-01-1234"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="syarikat">
+              Syarikat <span class="required">*</span>
+            </label>
+            <input type="text" id="syarikat" name="syarikat" required />
+          </div>
+
+          <div class="form-group">
+            <label for="noPendaftaran">
+              No Pendaftaran Syarikat <span class="required">*</span>
+            </label>
+            <input
+              type="text"
+              id="noPendaftaran"
+              name="no_pendaftaran_syarikat"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="telefon">
+              Tel. Bimbit <span class="required">*</span>
+            </label>
+            <input
+              type="tel"
+              id="telefon"
+              name="tel_bimbit"
+              placeholder="Contoh: 0123456789"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="email">
+              Email <span class="required">*</span>
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              placeholder="nama@email.com"
+              required
+            />
+          </div>
+
+          <div class="form-group full">
+            <label for="kategori">
+              Kategori Pelanggan <span class="required">*</span>
+            </label>
+            <select id="kategori" name="kategori_pelanggan" required>
+              <option value="">-- Sila Pilih Kategori --</option>
+              <option>Kontraktor</option>
+              <option>Personal Binaan</option>
+              <option>Pertubuhan</option>
+              <option>Syarikat</option>
+              <option>Individu</option>
+              <option>Agensi Kerajaan</option>
+              <option>Lain-lain Kategori</option>
+            </select>
+          </div>
+
+          <div class="form-group full">
+            <label for="dokumen">Dokumen Sokongan</label>
+            <input
+              type="file"
+              id="dokumen"
+              name="dokumen_sokongan"
+              multiple
+              accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+            />
+            <p class="help-text">
+              Format dicadangkan: PDF, JPG, PNG, DOC atau DOCX.
             </p>
+          </div>
         </div>
+      </section>
 
-        <!-- Quick Action Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-            <div onclick="triggerVoicebot('Flight Status')" class="cursor-pointer bg-white p-6 rounded-xl shadow-sm hover:shadow-md border border-gray-100 transition duration-200 flex flex-col items-center text-center">
-                <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center text-xl mb-4">
-                    <i class="fa-solid fa-plane-arrival"></i>
-                </div>
-                <h3 class="font-bold text-gray-800 text-lg mb-1">Flight Status</h3>
-                <p class="text-sm text-gray-500">Track real-time arrivals & departures (KLIA T1/T2, PEN, BKI)</p>
-            </div>
+      <div id="successMessage" class="success-message"></div>
 
-            <div onclick="triggerVoicebot('Baggage Allowance')" class="cursor-pointer bg-white p-6 rounded-xl shadow-sm hover:shadow-md border border-gray-100 transition duration-200 flex flex-col items-center text-center">
-                <div class="w-12 h-12 bg-red-50 text-red-600 rounded-full flex items-center justify-center text-xl mb-4">
-                    <i class="fa-solid fa-suitcase-rolling"></i>
-                </div>
-                <h3 class="font-bold text-gray-800 text-lg mb-1">Baggage Info</h3>
-                <p class="text-sm text-gray-500">Cabin limits, power bank rules, and excess baggage fees</p>
-            </div>
+      <div class="actions">
+        <button type="reset" class="btn-secondary">Set Semula</button>
+        <button type="submit" class="btn-primary">Hantar</button>
+      </div>
+    </form>
+  </main>
 
-            <div onclick="triggerVoicebot('Voice Assistance')" class="cursor-pointer bg-white p-6 rounded-xl shadow-sm hover:shadow-md border border-gray-100 transition duration-200 flex flex-col items-center text-center">
-                <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center text-xl mb-4">
-                    <i class="fa-solid fa-microphone"></i>
-                </div>
-                <h3 class="font-bold text-gray-800 text-lg mb-1">Speak with Voicebot</h3>
-                <p class="text-sm text-gray-500">Multilingual support in BM, English, and Mandarin</p>
-            </div>
-        </div>
+  <script>
+    const form = document.getElementById("ebantuanForm");
+    const successMessage = document.getElementById("successMessage");
 
-        <!-- Flight Search Widget Mockup -->
-        <div class="bg-white p-6 rounded-2xl shadow-lg border border-gray-200">
-            <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                <i class="fa-solid fa-magnifying-glass text-blue-600 mr-2"></i> Quick PNR Lookup
-            </h2>
-            <form onsubmit="event.preventDefault(); triggerPNRLookup();" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                    <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Booking Reference (PNR)</label>
-                    <input type="text" id="pnrInput" placeholder="e.g. MH6X9K" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none uppercase font-mono" required>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Passenger Last Name</label>
-                    <input type="text" id="lastNameInput" placeholder="e.g. Ahmad" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
-                </div>
-                <div class="flex items-end">
-                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
-                        Check Booking
-                    </button>
-                </div>
-            </form>
-        </div>
-    </main>
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
 
-    <!-- Footer -->
-    <footer class="bg-gray-900 text-gray-400 py-6 text-center text-sm border-t border-gray-800">
-        <p>&copy; 2026 MYAir Berhad. Powered by FPT.AI Voicebot Technology.</p>
-    </footer>
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
 
-    <!-- ================================================================= -->
-    <!-- FPT.AI WEBCHAT & VOICE WIDGET INTEGRATION SCRIPT -->
-    <!-- ================================================================= -->
-    <script>
-        // 1. Configuration variables for FPT.AI Voicebot SDK
-        let fpt_ai_livechat_configs = {
-            // Replace with your FPT.AI Bot Token & App ID from FPT Console
-            bot_id: "YOUR_FPT_AI_BOT_ID", 
-            token: "YOUR_FPT_AI_BOT_TOKEN",
-            
-            // Bot Customizations
-            title: "MYAir AI Voice & Support Assistant",
-            header_background: "linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%)",
-            bot_avatar: "https://cdn-icons-png.flaticon.com/512/4712/4712035.png",
-            user_avatar: "https://cdn-icons-png.flaticon.com/512/1144/1144760.png",
-            
-            // Speech / Voice Configurations
-            enable_voice: true,           // Enables STT/TTS voice feature
-            voice_language: "ms-MY",       // Default: Bahasa Malaysia (or 'en-US' / 'zh-CN')
-            voice_id: "my_female_voice",  // FPT AI Speech Voice Model
-            
-            // Custom CSS & UI settings
-            styles: {
-                header_name: "MYAir Assistant",
-                header_sub: "Online | Voice Enabled",
-                primary_color: "#1e3a8a"
-            }
-        };
+      const now = new Date();
+      const datePart =
+        now.getFullYear().toString() +
+        String(now.getMonth() + 1).padStart(2, "0") +
+        String(now.getDate()).padStart(2, "0");
 
-        // 2. Load the official FPT.AI Webchat Embed Script asynchronously
-        (function () {
-            let script = document.createElement("script");
-            script.type = "text/javascript";
-            script.async = true;
-            script.src = "https://livechat.fpt.ai/v3/src/bundle.js"; // FPT.AI Webchat Core Bundle
-            document.getElementsByTagName("head")[0].appendChild(script);
-        })();
+      const randomNumber = String(
+        Math.floor(Math.random() * 9999) + 1
+      ).padStart(4, "0");
 
-        // 3. Custom JS functions to trigger bot actions from frontend buttons
-        function triggerVoicebot(intentName) {
-            if (window.fpt_ai_livechat) {
-                window.fpt_ai_livechat.openWindow();
-                window.fpt_ai_livechat.sendPayload({
-                    type: "intent",
-                    name: intentName
-                });
-            } else {
-                alert("Opening FPT.AI Assistant for " + intentName + "...");
-            }
+      const referenceNo = `EB-${datePart}-${randomNumber}`;
+
+      const formData = new FormData(form);
+      const response = {};
+
+      for (const [key, value] of formData.entries()) {
+        if (value instanceof File) {
+          if (value.name) {
+            if (!response[key]) response[key] = [];
+            response[key].push(value.name);
+          }
+        } else {
+          response[key] = value;
         }
+      }
 
-        function triggerPNRLookup() {
-            let pnr = document.getElementById("pnrInput").value;
-            let name = document.getElementById("lastNameInput").value;
-            
-            if (window.fpt_ai_livechat) {
-                window.fpt_ai_livechat.openWindow();
-                // Pass PNR and Name payload directly to FPT.AI Multi-Agent orchestrator
-                window.fpt_ai_livechat.sendPayload({
-                    type: "text",
-                    text: `Check booking PNR ${pnr} for ${name}`
-                });
-            } else {
-                alert(`Querying FPT.AI backend for PNR: ${pnr}, Last Name: ${name}`);
-            }
-        }
-    </script>
+      response.no_rujukan = referenceNo;
+      response.tarikh_hantaran = now.toISOString();
 
+      console.log("Maklumbalas diterima:", response);
+
+      successMessage.innerHTML =
+        "<strong>Maklumbalas berjaya dihantar.</strong><br>" +
+        "No. Rujukan: <strong>" +
+        referenceNo +
+        "</strong>";
+
+      successMessage.style.display = "block";
+      successMessage.scrollIntoView({ behavior: "smooth", block: "center" });
+
+      /*
+        IMPORTANT:
+        This demo currently stores the submitted data only in the browser console.
+
+        To save responses permanently, connect the form to a backend/API, e.g.:
+
+        fetch("/api/ebantuan", {
+          method: "POST",
+          body: formData
+        });
+      */
+    });
+
+    form.addEventListener("reset", function () {
+      successMessage.style.display = "none";
+      successMessage.innerHTML = "";
+    });
+  </script>
+<script src="telephony-autofill-receiver.js"></script>  
 </body>
 </html>
